@@ -5,8 +5,16 @@ using System.Threading.Tasks;
 namespace ConcurrentCache {
 
 	public class Cache<TKey, TValue> : ICache<TKey, TValue> {
-		private readonly ConcurrentDictionary<TKey, DateTime> expiredTimeStore = new ConcurrentDictionary<TKey, DateTime>();
-		private readonly ConcurrentDictionary<TKey, TValue> mainStore = new ConcurrentDictionary<TKey, TValue>();
+		private readonly ConcurrentDictionary<TKey, CacheItem<TValue>> store
+			= new ConcurrentDictionary<TKey, CacheItem<TValue>>();
+		
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="key"></param>
+		public void Delete(TKey key) {
+			store.TryRemove(key, out var _);
+		}
 
 		/// <summary>
 		/// Get and/or put data in the cache
@@ -16,19 +24,19 @@ namespace ConcurrentCache {
 		/// <param name="expired">Storage duration, if null then infinity</param>
 		/// <returns>Result value</returns>
 		public async Task<TValue> GetOrAdd(TKey key, Func<Task<TValue>> onMissing, TimeSpan? expired = null){
-			var isCached = mainStore.ContainsKey(key);
-			if (isCached && expired is null || isCached && expiredTimeStore[key] > (DateTime.UtcNow - expired)) {
-				return mainStore[key];
+			var isCached = store.TryGetValue(key, out var cacheItem);
+			if (isCached && !cacheItem.IsExpired()) {
+				return store[key].Payload;
 			}
 
-			var now = DateTime.UtcNow;
-			expiredTimeStore.AddOrUpdate(key, now, (_, oldValue) => now);
 
+			var resultPayload = await onMissing();
+			var newCacheItem = new CacheItem<TValue>(resultPayload, expired);
+			store.AddOrUpdate(key, newCacheItem, (_, oldValue) => newCacheItem);
 
-			var result = await onMissing();
-			mainStore.AddOrUpdate(key, result, (_, oldValue) =>  result);
-
-			return result;
-		}
+			return resultPayload;
+		}		
+		
+		
 	}
 }

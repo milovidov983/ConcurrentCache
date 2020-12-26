@@ -11,5 +11,11 @@ namespace ConcurrentCache {
 		/// <param name="expired">Storage duration, if null then infinity</param>
 		/// <returns>Result value</returns>
 		Task<TValue> GetOrAdd(TKey key, Func<Task<TValue>> onMissing, TimeSpan? expired = null);
+
+		/// <summary>
+		/// Remove value from the cache
+		/// </summary>
+		/// <param name="key">cache key</param>
+		void Delete(TKey key);
 	}
 }
