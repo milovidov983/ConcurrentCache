@@ -7,7 +7,6 @@ using Xunit;
 namespace CacheUnitTests {
 	public class CacheUnitTests {
 		private ICache<string, int> cache = new Cache<string, int>();
-		private const string Key = "someKey";
 
 		[Fact]
 		public async Task Non_default_return() {

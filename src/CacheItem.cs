@@ -17,7 +17,7 @@ namespace ConcurrentCache {
 
 
 		public bool IsExpired() {
-			return storedAt < (DateTime.UtcNow - lifeTime);
+			return lifeTime is not null && storedAt < (DateTime.UtcNow - lifeTime);
 		}
 	}
 }
