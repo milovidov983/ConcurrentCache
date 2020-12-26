@@ -6,7 +6,7 @@ using Xunit;
 
 namespace CacheUnitTests {
 	public class UnitTest1 {
-		private ICache<string, int> cache;
+		private ICache<string, int> cache = new Cache<string, int>();
 		private const string Key = "someKey";
 
 		[Fact]
