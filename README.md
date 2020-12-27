@@ -3,7 +3,7 @@
 
 ## Overview
 
-An easy-to-use, thread-safe local cache library for dotnet. It is based on the implementation recommended by Microsoft Microsoft Microsoft.Extensions.Caching.Memory.
+An easy-to-use, thread-safe local cache library for dotnet. It is based on the implementation recommended by Microsoft `Microsoft.Extensions.Caching.Memory`.
 
 
 
