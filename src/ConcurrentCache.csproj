@@ -3,6 +3,13 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<LangVersion>9.0</LangVersion>
+		<Authors>Milovidov Vasya</Authors>
+		<Company />
+		<Product>ConcurrentLocalCache</Product>
+		<Description>An easy-to-use, thread-safe local cache library for dotnet. It is based on the implementation recommended by Microsoft Microsoft.Extensions.Caching.Memory.</Description>
+		<RepositoryUrl>https://github.com/milovidov983/ConcurrentCache</RepositoryUrl>
+		<PackageTags>localcache</PackageTags>
+		<PackageId>ConcurrentLocalCache</PackageId>
 	</PropertyGroup>
 
 	<ItemGroup>
