@@ -1,3 +1,4 @@
+[![NuGet](https://www.nuget.org/packages/ConcurrentLocalCache/)](https://www.nuget.org/packages/ConcurrentLocalCache/)
 # ConcurrentCache - An easy-to-use, thread-safe local cache library for dotnet
 __Package__ - [ConcurrentLocalCache](https://www.nuget.org/packages/ConcurrentLocalCache/)
 
