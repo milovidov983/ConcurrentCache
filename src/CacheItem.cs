@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ConcurrentCache {
 	internal struct CacheItem<TValue> {
@@ -19,5 +20,10 @@ namespace ConcurrentCache {
 		public bool IsExpired() {
 			return lifeTime is not null && storedAt < (DateTime.UtcNow - lifeTime);
 		}
+	}
+
+	internal class ThreadWaitObject {
+		public TaskCompletionSource<object> Up { get; set; } = new TaskCompletionSource<object>();
+		public TaskCompletionSource<object> Down { get; set; } = new TaskCompletionSource<object>();
 	}
 }

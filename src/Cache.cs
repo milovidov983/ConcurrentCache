@@ -1,19 +1,22 @@
-﻿using System;
+﻿using Microsoft.Extensions.Caching.Memory;
+using System;
 using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ConcurrentCache {
 
 	public class Cache<TKey, TValue> : ICache<TKey, TValue> {
-		private readonly ConcurrentDictionary<TKey, CacheItem<TValue>> store
-			= new ConcurrentDictionary<TKey, CacheItem<TValue>>();
-		
+		private readonly MemoryCache cache = new MemoryCache(new MemoryCacheOptions());
+		private readonly ConcurrentDictionary<TKey, SemaphoreSlim> locks = new ConcurrentDictionary<TKey, SemaphoreSlim>();
+		private readonly CacheOptionFactory optionFactory = new CacheOptionFactory();
+
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="key"></param>
 		public void Delete(TKey key) {
-			store.TryRemove(key, out var _);
+			cache.Remove(key);
 		}
 
 		/// <summary>
@@ -23,20 +26,26 @@ namespace ConcurrentCache {
 		/// <param name="onMissing">Executed when key not found</param>
 		/// <param name="expired">Storage duration, if null then infinity</param>
 		/// <returns>Result value</returns>
-		public async Task<TValue> GetOrAdd(TKey key, Func<Task<TValue>> onMissing, TimeSpan? expired = null){
-			var isCached = store.TryGetValue(key, out var cacheItem);
-			if (isCached && !cacheItem.IsExpired()) {
-				return store[key].Payload;
+		public async Task<TValue> GetOrAdd(TKey key, Func<Task<TValue>> createItem, TimeSpan? expired = null){
+			if (!cache.TryGetValue(key, out TValue cacheEntry))
+			{
+				SemaphoreSlim mylock = locks.GetOrAdd(key, k => new SemaphoreSlim(1, 1));
+
+				await mylock.WaitAsync();
+				try {
+					if (!cache.TryGetValue(key, out cacheEntry)) {
+
+						cacheEntry = await createItem();
+						var options = optionFactory.GetCacheEntryOptions(expired);
+						cache.Set(key, cacheEntry, options);
+					}
+				} finally {
+					mylock.Release();
+				}
 			}
+			return cacheEntry;
 
+		}
 
-			var resultPayload = await onMissing();
-			var newCacheItem = new CacheItem<TValue>(resultPayload, expired);
-			store.AddOrUpdate(key, newCacheItem, (_, oldValue) => newCacheItem);
-
-			return resultPayload;
-		}		
-		
-		
 	}
 }

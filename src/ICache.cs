@@ -7,10 +7,10 @@ namespace ConcurrentCache {
 		/// Main cache interface
 		/// </summary>
 		/// <param name="key">Cache key</param>
-		/// <param name="onMissing">Executed when key not found</param>
+		/// <param name="createItem">Executed when key not found</param>
 		/// <param name="expired">Storage duration, if null then infinity</param>
 		/// <returns>Result value</returns>
-		Task<TValue> GetOrAdd(TKey key, Func<Task<TValue>> onMissing, TimeSpan? expired = null);
+		Task<TValue> GetOrAdd(TKey key, Func<Task<TValue>> createItem, TimeSpan? expired = null);
 
 		/// <summary>
 		/// Remove value from the cache
