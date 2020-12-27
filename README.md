@@ -1,13 +1,13 @@
-# ConcurrentCache - easy-to-use, thread-safe local cache library for dotnet
-
+# ConcurrentCache - An easy-to-use, thread-safe local cache library for dotnet
+__Package__ - [ConcurrentLocalCache](https://www.nuget.org/packages/ConcurrentLocalCache/)
 
 ## Overview
 
 An easy-to-use, thread-safe local cache library for dotnet. It is based on the implementation recommended by Microsoft `Microsoft.Extensions.Caching.Memory`.
 
+---
 
-
-### Examples
+## Super simple to use
 
 ```csharp
 
