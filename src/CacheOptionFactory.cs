@@ -6,21 +6,21 @@ namespace ConcurrentCache {
 	internal class CacheOptionFactory {
 		private readonly ConcurrentDictionary<TimeSpan, MemoryCacheEntryOptions> cacheOptions
 			= new ConcurrentDictionary<TimeSpan, MemoryCacheEntryOptions>();
-		private readonly MemoryCacheEntryOptions defaultOptions;
+		private readonly MemoryCacheEntryOptions defaultOptions = new MemoryCacheEntryOptions();
 
-		public MemoryCacheEntryOptions GetCacheEntryOptions(TimeSpan? absoluteExpiration) {
-			if (absoluteExpiration is null) {
+		public MemoryCacheEntryOptions GetCacheEntryOptions(TimeSpan absoluteExpiration) {
+			if (absoluteExpiration == TimeSpan.MaxValue) {
 				return defaultOptions;
 			}
-			var isCached = cacheOptions.TryGetValue(absoluteExpiration.Value, out var options);
+			var isCached = cacheOptions.TryGetValue(absoluteExpiration, out var options);
 			if (isCached) {
 				return options;
 			}
 
-			var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(absoluteExpiration.Value);
+			var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(absoluteExpiration);
 
 			cacheOptions.AddOrUpdate(
-				absoluteExpiration.Value, 
+				absoluteExpiration, 
 				cacheEntryOptions, 
 				(_, oldValue) => oldValue);
 

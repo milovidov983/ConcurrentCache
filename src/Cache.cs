@@ -11,12 +11,18 @@ namespace ConcurrentCache {
 		private readonly ConcurrentDictionary<TKey, SemaphoreSlim> locks = new ConcurrentDictionary<TKey, SemaphoreSlim>();
 		private readonly CacheOptionFactory optionFactory = new CacheOptionFactory();
 
+		
+
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="key"></param>
 		public void Delete(TKey key) {
 			cache.Remove(key);
+		}
+
+		public async Task<TValue> GetOrAdd(TKey key, Func<Task<TValue>> createItem) {
+			return await GetOrAdd(key, createItem, TimeSpan.MaxValue);
 		}
 
 		/// <summary>
@@ -26,7 +32,7 @@ namespace ConcurrentCache {
 		/// <param name="onMissing">Executed when key not found</param>
 		/// <param name="expired">Storage duration, if null then infinity</param>
 		/// <returns>Result value</returns>
-		public async Task<TValue> GetOrAdd(TKey key, Func<Task<TValue>> createItem, TimeSpan? expired = null){
+		public async Task<TValue> GetOrAdd(TKey key, Func<Task<TValue>> createItem, TimeSpan expired){
 			if (!cache.TryGetValue(key, out TValue cacheEntry))
 			{
 				SemaphoreSlim mylock = locks.GetOrAdd(key, k => new SemaphoreSlim(1, 1));
