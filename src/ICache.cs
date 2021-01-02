@@ -24,6 +24,6 @@ namespace ConcurrentCache {
 		/// Remove value from the cache
 		/// </summary>
 		/// <param name="key">cache key</param>
-		void Delete(TKey key);
+		Task<TValue> Delete(TKey key);
 	}
 }

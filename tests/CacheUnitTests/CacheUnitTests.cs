@@ -29,7 +29,7 @@ namespace CacheUnitTests {
 			count++;
 
 			await cache.GetOrAdd("number", () => Task.FromResult(count));
-			cache.Delete("number");
+			await cache.Delete("number");
 
 			count++;
 			var result = await cache.GetOrAdd("number", () => Task.FromResult(count));
