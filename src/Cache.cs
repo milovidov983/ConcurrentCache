@@ -8,10 +8,8 @@ namespace ConcurrentCache {
 
 	public class Cache<TKey, TValue> : ICache<TKey, TValue> {
 		private readonly MemoryCache cache = new MemoryCache(new MemoryCacheOptions());
-		private readonly ConcurrentDictionary<TKey, SemaphoreSlim> locks = new ConcurrentDictionary<TKey, SemaphoreSlim>();
 		private readonly CacheOptionFactory optionFactory = new CacheOptionFactory();
-
-		
+		private readonly Locker<TKey> locker = new Locker<TKey>();
 
 		/// <summary>
 		/// 
@@ -19,9 +17,9 @@ namespace ConcurrentCache {
 		/// <param name="key"></param>
 		public async Task<TValue> Delete(TKey key) {
 			if (cache.TryGetValue(key, out TValue cacheEntry)) {
-				SemaphoreSlim mylock = locks.GetOrAdd(key, k => new SemaphoreSlim(1, 1));
+				
 
-				await mylock.WaitAsync();
+				await locker.WaitAsync(key);
 				try {
 					if (cache.TryGetValue(key, out cacheEntry)) {
 
@@ -29,7 +27,7 @@ namespace ConcurrentCache {
 						return cacheEntry;
 					}
 				} finally {
-					mylock.Release();
+					locker.Release(key);
 
 				}
 			}
@@ -51,9 +49,7 @@ namespace ConcurrentCache {
 		public async Task<TValue> GetOrAdd(TKey key, Func<Task<TValue>> createItem, TimeSpan expired){
 			if (!cache.TryGetValue(key, out TValue cacheEntry))
 			{
-				SemaphoreSlim mylock = locks.GetOrAdd(key, k => new SemaphoreSlim(1, 1));
-
-				await mylock.WaitAsync();
+				await locker.WaitAsync(key);
 				try {
 					if (!cache.TryGetValue(key, out cacheEntry)) {
 
@@ -62,7 +58,7 @@ namespace ConcurrentCache {
 						cache.Set(key, cacheEntry, options);
 					}
 				} finally {
-					mylock.Release();
+					locker.Release(key);
 				}
 			}
 			return cacheEntry;
