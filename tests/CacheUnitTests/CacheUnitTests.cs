@@ -36,5 +36,34 @@ namespace CacheUnitTests {
 
 			result.ShouldBe(2);
 		}
+
+		[Fact]
+		public async Task Set_10000_objects() {
+			var count = 10000;
+
+			System.Diagnostics.Debug.WriteLine("Stage I");
+			var sw = System.Diagnostics.Stopwatch.StartNew();
+			for(int i = 0; i < count; i++) {
+				if(i % 1000 == 0) {
+					sw.Stop();
+					System.Diagnostics.Debug.WriteLine($"{sw.ElapsedMilliseconds} ms");
+					sw.Reset();
+					sw.Restart();
+				}
+				await cache.GetOrAdd($"number-{i}", () => Task.FromResult(i));
+			}
+
+			System.Diagnostics.Debug.WriteLine("Stage II");
+			for (int i = 0; i < count; i++) {
+				if (i % 1000 == 0) {
+					sw.Stop();
+					System.Diagnostics.Debug.WriteLine($"{sw.ElapsedMilliseconds} ms");
+					sw.Reset();
+					sw.Restart();
+				}
+				await cache.GetOrAdd($"number-{i}", () => Task.FromResult(i));
+			}
+		}
 	}
 }
+

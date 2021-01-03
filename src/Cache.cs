@@ -65,5 +65,9 @@ namespace ConcurrentCache {
 
 		}
 
+
+		public void SetLockObjectLimit(int limit) {
+			locker.SetLimit(limit);
+		}
 	}
 }
